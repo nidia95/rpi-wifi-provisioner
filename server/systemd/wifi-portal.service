@@ -1,0 +1,21 @@
+[Unit]
+Description=Wi-Fi provisioning / Server to listen Network details
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=__INSTALL_DIR__
+ExecStart=__INSTALL_DIR__/check_network.sh
+Restart=on-failure
+RestartSec=5
+User=root
+
+# Logs go to journalctl
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
