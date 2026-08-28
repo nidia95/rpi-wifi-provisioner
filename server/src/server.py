@@ -73,8 +73,35 @@ def parse_message(raw: bytes) -> tuple[str, str, str] | None:
     return token, ssid, password
 
 
+def rescan_networks() -> None:
+    """Use nmcli to rescan for available Wi-Fi networks.
+
+    This refreshes nmcli's internal AP list so that a network which was not
+    previously seen (e.g. because it wasn't broadcasting yet or the list is
+    stale) can be found before we attempt to connect to it.
+    """
+    try:
+        result = subprocess.run(
+            [NMCLI_BIN, "device", "wifi", "rescan"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=NMCLI_TIMEOUT_SECONDS,
+        )
+        if result.returncode != 0:
+            log.warning("nmcli rescan failed: %s", result.stderr.strip())
+
+    except subprocess.TimeoutExpired:
+        log.warning("nmcli rescan timed out")
+
+    except Exception:  # pylint: disable=broad-exception-caught
+        log.exception("Unexpected error while rescanning Wi-Fi networks")
+
+
 def connect_to_network(ssid: str, password: str) -> subprocess.CompletedProcess:
     """Use nmcli to connect to the given Wi-Fi network."""
+    rescan_networks()
+
     return subprocess.run(
         [NMCLI_BIN, "device", "wifi", "connect", ssid, "password", password],
         capture_output=True,
@@ -112,6 +139,7 @@ def run() -> None:
 
             if expected_token is not None and token != expected_token:
                 log.warning("Rejected packet from %s: invalid token", address[0])
+                _reply(pi_socket, address, "Invalid provisioning token.")
                 continue
 
             try:
