@@ -172,7 +172,7 @@ If you edited scripts on Windows, hidden carriage return characters can cause ex
 
 ```bash
 sudo apt install -y dos2unix
-dos2unix server/src/*.sh
+dos2unix ./*.sh
 ```
 
 **AP not appearing after reboot**

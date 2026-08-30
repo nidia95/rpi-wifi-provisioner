@@ -29,7 +29,15 @@ LISTEN_PORT = 2222
 NMCLI_BIN = "/usr/bin/nmcli"
 
 NMCLI_TIMEOUT_SECONDS = 30
+NMCLI_RESCAN_TIMEOUT_SECONDS = 15
+NMCLI_LIST_TIMEOUT_SECONDS = 10
 MAX_FIELD_LENGTH = 128
+MAX_LOGGED_SSIDS = 20
+
+_NMCLI_PREFLIGHT_ERRORS = (
+    subprocess.TimeoutExpired,
+    OSError,  # includes FileNotFoundError (nmcli binary missing)
+)
 
 TOKEN_FILE = Path(__file__).resolve().parent / "provision.token"
 
@@ -73,12 +81,15 @@ def parse_message(raw: bytes) -> tuple[str, str, str] | None:
     return token, ssid, password
 
 
-def rescan_networks() -> None:
+def rescan_wifi() -> bool:
     """Use nmcli to rescan for available Wi-Fi networks.
 
-    This refreshes nmcli's internal AP list so that a network which was not
+    This refreshes nmcli's Wi-Fi list so that a network which was not
     previously seen (e.g. because it wasn't broadcasting yet or the list is
     stale) can be found before we attempt to connect to it.
+
+       Returns:
+           True if the rescan command itself completed successfully.
     """
     try:
         result = subprocess.run(
@@ -86,21 +97,70 @@ def rescan_networks() -> None:
             capture_output=True,
             text=True,
             check=False,
-            timeout=NMCLI_TIMEOUT_SECONDS,
+            timeout=NMCLI_RESCAN_TIMEOUT_SECONDS,
         )
-        if result.returncode != 0:
-            log.warning("nmcli rescan failed: %s", result.stderr.strip())
+    except _NMCLI_PREFLIGHT_ERRORS as error:
+        log.warning("nmcli rescan could not run: %s", error)
+        return False
 
-    except subprocess.TimeoutExpired:
-        log.warning("nmcli rescan timed out")
+    if result.returncode != 0:
+        log.warning("nmcli rescan failed: %s", result.stderr.strip())
+        return False
 
-    except Exception:  # pylint: disable=broad-exception-caught
-        log.exception("Unexpected error while rescanning Wi-Fi networks")
+    return True
+
+
+def list_wifi_networks() -> list[str]:
+    """Return the SSIDs nmcli currently sees, for discovery/diagnostics.
+
+    Best-effort: returns an empty list (rather than raising) if the list
+    command fails, since the caller only uses this to log a helpful
+    warning before attempting to connect.
+    """
+    try:
+        result = subprocess.run(
+            [NMCLI_BIN, "-t", "-f", "SSID", "device", "wifi", "list"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=NMCLI_LIST_TIMEOUT_SECONDS,
+        )
+    except _NMCLI_PREFLIGHT_ERRORS as error:
+        log.warning("nmcli list could not run: %s", error)
+        return []
+
+    if result.returncode != 0:
+        log.warning("nmcli list failed: %s", result.stderr.strip())
+        return []
+
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
 def connect_to_network(ssid: str, password: str) -> subprocess.CompletedProcess:
-    """Use nmcli to connect to the given Wi-Fi network."""
-    rescan_networks()
+    """Rescan, discover, then join the given Wi-Fi network via nmcli.
+
+    Always rescans (and lists) before attempting to connect, so a network
+    that only just became visible isn't missed. A failure there does not block the
+    connection attempt itself.
+    """
+    rescan_wifi()
+
+    visible_ssids = list_wifi_networks()
+    if not visible_ssids:
+        # add attemping to connect anyway, since the list command can fail even if the rescan worked
+        log.warning("No Wi-Fi networks were found in the latest scan.")
+
+    elif ssid not in visible_ssids:
+        shown = visible_ssids[:MAX_LOGGED_SSIDS]
+        suffix = ", ..." if len(visible_ssids) > MAX_LOGGED_SSIDS else ""
+        log.warning(
+            "SSID '%s' was not seen in the latest scan (%d network(s) "
+            "visible: %s%s); attempting to connect anyway.",
+            ssid,
+            len(visible_ssids),
+            ", ".join(shown),
+            suffix,
+        )
 
     return subprocess.run(
         [NMCLI_BIN, "device", "wifi", "connect", ssid, "password", password],
