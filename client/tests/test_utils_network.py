@@ -4,8 +4,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import utils  # noqa: E402
-
+import utils
 
 # ---------------------------------------------------------------------------
 # resolve_scan_range
@@ -98,7 +97,9 @@ def test_get_network_ip_range_linux_success():
 
 
 def test_get_network_ip_range_linux_no_default_route_returns_none():
-    with patch.object(utils.subprocess, "check_output", return_value="no default here\n"):
+    with patch.object(
+        utils.subprocess, "check_output", return_value="no default here\n"
+    ):
         assert utils._get_network_ip_range_linux() is None
 
 
@@ -130,14 +131,18 @@ def test_get_network_ip_range_windows_success():
 
 
 def test_get_network_ip_range_windows_no_wifi_section_returns_none():
-    output = "Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 10.0.0.5\n"
+    output = (
+        "Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 10.0.0.5\n"
+    )
     with patch.object(utils.subprocess, "check_output", return_value=output):
         assert utils._get_network_ip_range_windows() is None
 
 
 def test_get_network_ip_range_windows_command_failure_returns_none():
     with patch.object(
-        utils.subprocess, "check_output", side_effect=FileNotFoundError("ipconfig missing")
+        utils.subprocess,
+        "check_output",
+        side_effect=FileNotFoundError("ipconfig missing"),
     ):
         assert utils._get_network_ip_range_windows() is None
 

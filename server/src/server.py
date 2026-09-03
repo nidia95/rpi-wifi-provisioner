@@ -13,12 +13,11 @@ redirect the Pi's network connection. See SECURITY.md.
 
 from __future__ import annotations
 
+import logging
+import socket
+import subprocess
 import sys
 import time
-import socket
-import logging
-import subprocess
-
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")

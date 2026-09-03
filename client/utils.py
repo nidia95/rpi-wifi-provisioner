@@ -7,12 +7,11 @@ and unit tested.
 
 from __future__ import annotations
 
-import re
+import ipaddress
 import logging
 import platform
-import ipaddress
+import re
 import subprocess
-
 
 try:
     import manuf

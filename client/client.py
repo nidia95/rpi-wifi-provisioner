@@ -15,13 +15,13 @@ day-to-day interactive use since they can leak into shell history/logs):
 
 from __future__ import annotations
 
-import os
-import re
-import socket
+import argparse
 import getpass
 import logging
-import argparse
+import os
 import platform
+import re
+import socket
 import subprocess
 
 log = logging.getLogger(__name__)

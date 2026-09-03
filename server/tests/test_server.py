@@ -5,8 +5,7 @@ from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import server  # noqa: E402
-
+import server
 
 # ---------------------------------------------------------------------------
 # parse_message
@@ -108,13 +107,12 @@ def test_rescan_wifi_nonzero_exit_returns_false(caplog):
 
 
 def test_rescan_wifi_timeout_returns_false(caplog):
-    with caplog.at_level("WARNING"):
-        with patch.object(
-            server.subprocess,
-            "run",
-            side_effect=subprocess.TimeoutExpired(cmd="nmcli", timeout=15),
-        ):
-            assert server.rescan_wifi() is False
+    with caplog.at_level("WARNING"), patch.object(
+        server.subprocess,
+        "run",
+        side_effect=subprocess.TimeoutExpired(cmd="nmcli", timeout=15),
+    ):
+        assert server.rescan_wifi() is False
 
     assert "nmcli rescan could not run" in caplog.text
 

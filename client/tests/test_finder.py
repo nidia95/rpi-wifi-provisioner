@@ -5,9 +5,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import finder  # noqa: E402
-from exceptions import ManufUnavailableError, NmapUnavailableError, ArpUnavailableError
-
+import finder
+from exceptions import ArpUnavailableError, ManufUnavailableError, NmapUnavailableError
 
 RASP_MAC = "B8:27:EB:12:34:56"
 OTHER_MAC = "AC:DE:48:00:11:22"

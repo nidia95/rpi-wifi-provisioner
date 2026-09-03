@@ -8,24 +8,23 @@ from __future__ import annotations
 
 import argparse
 import logging
+import platform
 import re
 import shutil
-import platform
 import subprocess
 import time
 
+from exceptions import (
+    ArpUnavailableError,
+    ManufUnavailableError,
+    NmapUnavailableError,
+    ScanDependencyError,
+)
 from utils import (
     get_network_ip_range,
     is_manuf_available,
     is_rasp,
     resolve_scan_range,
-)
-
-from exceptions import (
-    ScanDependencyError,
-    ManufUnavailableError,
-    NmapUnavailableError,
-    ArpUnavailableError,
 )
 
 log = logging.getLogger(__name__)
