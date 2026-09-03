@@ -13,3 +13,21 @@ exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.:",
 ]
+
+
+[tool.ruff]
+# Set target Python version (py310 enables bit_count() for FURB161)
+target-version = "py310"
+
+# Automatically apply unsafe fixes when running `ruff check --fix`
+unsafe-fixes = true
+
+[tool.ruff.lint]
+# Select the rule sets you want Ruff to check
+select = [
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "I",    # isort (import sorting)
+    "SIM",  # flake8-simplify (includes SIM117)
+    "FURB", # refurb (includes FURB161)
+]

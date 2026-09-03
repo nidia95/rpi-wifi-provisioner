@@ -1,4 +1,5 @@
-"""Custom exceptions for missing dependencies, so we can provide user-friendly error messages."""
+"""Custom exceptions for missing dependencies,
+so we can provide user-friendly error messages."""
 
 
 class ScanDependencyError(RuntimeError):

@@ -31,11 +31,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r client/requirements-dev.txt
 
-      - name: Lint (ruff)
+      - name: Lint check (ruff)
         run: ruff check client server/src
 
-      - name: Format check (black)
-        run: black --check client server/src
+      - name: Format check (ruff)
+        run: ruff format --check client server/src
 
       - name: Test with coverage (pytest)
         run: |

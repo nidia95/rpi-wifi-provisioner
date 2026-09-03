@@ -146,7 +146,7 @@ def connect_to_network(ssid: str, password: str) -> subprocess.CompletedProcess:
 
     visible_ssids = list_wifi_networks()
     if not visible_ssids:
-        # add attemping to connect anyway, since the list command can fail even if the rescan worked
+        # add attempting to connect anyway
         log.warning("No Wi-Fi networks were found in the latest scan.")
 
     elif ssid not in visible_ssids:
@@ -171,8 +171,8 @@ def connect_to_network(ssid: str, password: str) -> subprocess.CompletedProcess:
 
 
 def run() -> None:
-    """Run the provisioning server, listening for UDP messages and connecting to Wi-Fi."""
-    expected_token: str | None = load_expected_token()
+    """Run the provisioning server to listen for UDP messages and connect to Wi-Fi."""
+    expected_token: str = load_expected_token()
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as pi_socket:
         pi_socket.bind(("0.0.0.0", LISTEN_PORT))

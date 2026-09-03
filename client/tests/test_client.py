@@ -103,7 +103,10 @@ def test_get_gateway_windows_parses_output():
 
 
 def test_get_gateway_windows_returns_none_without_wifi_section():
-    output = "Ethernet adapter Ethernet:\n\n   Default Gateway . . . . . . . . . : 10.0.0.1\n"
+    output = (
+        "Ethernet adapter Ethernet:\n\n"
+        "   Default Gateway . . . . . . . . . : 10.0.0.1\n"
+    )
     with patch.object(client.subprocess, "check_output", return_value=output):
         assert client._get_gateway_windows() is None
 

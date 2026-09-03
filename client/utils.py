@@ -105,7 +105,7 @@ def _get_network_ip_range_linux() -> str | None:
 
 
 def _netmask_to_prefix(mask: str) -> int:
-    return sum(bin(int(octet)).count("1") for octet in mask.split("."))
+    return sum(int(octet).bit_count() for octet in mask.split("."))
 
 
 def _get_network_ip_range_windows() -> str | None:
