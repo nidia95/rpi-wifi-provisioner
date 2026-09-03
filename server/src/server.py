@@ -72,7 +72,7 @@ def parse_message(raw: bytes) -> tuple[str, str, str] | None:
 
     token, ssid, password = parts
 
-    if not ssid or not password:
+    if not token or not ssid or not password:
         return None
 
     if len(ssid) > MAX_FIELD_LENGTH or len(password) > MAX_FIELD_LENGTH:

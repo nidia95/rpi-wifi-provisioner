@@ -99,7 +99,7 @@ def send_credentials(
     ssid: str,
     password: str,
     host: str,
-    token: str | None = None,
+    token: str,
     port: int = SERVER_PORT,
     timeout: float = RECEIVE_TIMEOUT_SECONDS,
 ) -> None:
@@ -114,7 +114,7 @@ def send_credentials(
         timeout: Seconds to wait for a response before assuming the Pi
             has started reconnecting (which drops this connection).
     """
-    payload = f"{token or ''}|{ssid}|{password}"
+    payload = f"{token}|{ssid}|{password}"
 
     log.info("Sending credentials to %s:%s ...", host, port)
 

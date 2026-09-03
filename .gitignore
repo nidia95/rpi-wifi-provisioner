@@ -7,12 +7,21 @@ venv/
 *.egg-info/
 dist/
 build/
+
+# Testing & coverage
 .pytest_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
 
 # Editors
 .vscode/
 .idea/
+
+# OS
 .DS_Store
 
 # Secrets
