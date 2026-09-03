@@ -31,3 +31,7 @@ select = [
     "SIM",  # flake8-simplify (includes SIM117)
     "FURB", # refurb (includes FURB161)
 ]
+
+# TODO need to Refactor with mocker fixture
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*" = ["SIM117"]
